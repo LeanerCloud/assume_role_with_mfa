@@ -35,7 +35,9 @@ go install github.com/LeanerCloud/assume_role_with_mfa@latest
 
 ## Usage
 
-Create this configuration in the `~/.aws/config` file. Make sure the path is correct. You can also test the command in a shell to see how it works. 
+Create this configuration in the `~/.aws/config` file, making sure the path is correct. 
+
+You can also test the command in a shell to see how it works. 
 
 ```text
 [profile my_mfa]
@@ -43,17 +45,17 @@ credential_process = /Users/USERNAME/go/bin/assume_role_with_mfa -mfa-arn arn:aw
 region = MY_REGION
 ```
 
-Use this new profile as usual and you will be asked for the MFA code using this small GUI.
+Use this new profile as usual and you will be asked for the MFA code using this little GUI tool.
 
 <img width="181" alt="Screenshot 2023-12-05 at 11 15 13" src="https://github.com/LeanerCloud/assume_role_with_mfa/assets/95209/80aa3c5d-a485-40a9-919a-ba0068bedf5b">
 
-The GUI will then assume the role using the MFA code and provide some temporary credentials to that profile.
+The tool will then assume the role using the MFA code and provide some temporary credentials to that profile.
 
 ## Credential caching
 
 To avoid asking for MFA repeatedly, we cache the obtained credentials in a file located in the Fyne application's storage directory, and the cached credentials will be reused until they expire.
 
-The cache filename is a SHA256 hash of the role ARN to uniquely identify the credentials.
+The cache filename is a SHA256 hash of the role ARN to uniquely identify the credentials when switching between profiles/roles.
 
 ## Related Projects
 
@@ -76,10 +78,11 @@ Reach out to us on [Slack](https://join.slack.com/t/leanercloud/shared_invite/zt
 
 Contributions to this project are welcome! You can contribute in the following ways:
 
-Report Issues: If you find any bugs or have feature suggestions, please create an issue.
-Submit Pull Requests: Feel free to fork the repository and submit pull requests with bug fixes or new features.
+- Report Issues: If you find any bugs or have feature suggestions, please create an issue.
+- Submit Pull Requests: Feel free to fork the repository and submit pull requests with bug fixes or new features.
 
 ## License
 
 This project is licensed under the MIT License.
+
 Copyright (c) 2023 Cristian Magherusan-Stanciu, [LeanerCloud.com](https://LeanerCloud.com).
