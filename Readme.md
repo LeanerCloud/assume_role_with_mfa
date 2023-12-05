@@ -34,22 +34,25 @@ go install github.com/LeanerCloud/assume_role_with_mfa@latest
 
 ## Usage
 
-Create this configuration in the `~/.aws/config` file.
+Create this configuration in the `~/.aws/config` file. Make sure the path is correct. You can also test the command in a shell to see how it works. 
 
 ```text
-[profile mfa]
+[profile my_mfa]
 credential_process = /Users/USERNAME/go/bin/assume_role_with_mfa -mfa-arn arn:aws:iam::XXXXXXXXXXXX:mfa/mfa -profile another-profile-having-static-credentials -role-arn arn:aws:iam::YYYYYYYYYYYY:role/myRole
 region = MY_REGION
 ```
 
+Use this new profile as usual and you will be asked for the MFA code using this small GUI.
 
-Use this profile and you will be asked for the MFA code using a small GUI.
+<img width="181" alt="Screenshot 2023-12-05 at 11 15 13" src="https://github.com/LeanerCloud/assume_role_with_mfa/assets/95209/80aa3c5d-a485-40a9-919a-ba0068bedf5b">
 
-The GUI will then assume the role using the MFA code and get you some temporary credentials.
+The GUI will then assume the role using the MFA code and provide some temporary credentials to that profile.
 
 ## Credential caching
 
-The tool caches the obtained credentials in a file located in the Fyne application's storage directory. The cache filename is a SHA256 hash of the role ARN to uniquely identify the credentials.
+To avoid asking for MFA repeatedly, we cache the obtained credentials in a file located in the Fyne application's storage directory, and the cached credentials will be reused until they expire.
+
+The cache filename is a SHA256 hash of the role ARN to uniquely identify the credentials.
 
 ## Related Projects
 
