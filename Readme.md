@@ -15,7 +15,8 @@ Instead, we integrate as a credential_process, which is better supported by the 
 
 ## Features
 
-- Assists in assuming AWS roles using MFA using a graphical user interface for easy interaction.
+- It actually works for the Go SDK :-D
+- Ask for MFA using a graphical user interface.
 - Caches credentials locally for subsequent access.
 
 ## Prerequisites
