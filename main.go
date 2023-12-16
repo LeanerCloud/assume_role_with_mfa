@@ -130,11 +130,31 @@ func launchGUI(myApp fyne.App, roleArn, mfaSerialNumber string) {
 	myWindow := setupGUIWindow(myApp, roleArn, mfaSerialNumber)
 	myWindow.ShowAndRun()
 }
+func handleMFASubmission(myWindow fyne.Window, roleArn, mfaSerialNumber, token string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	credentials, err := assumeRoleWithToken(ctx, roleArn, mfaSerialNumber, token)
+	if err != nil {
+		dialog.ShowError(err, myWindow) // Show error in a dialog box
+		return
+	}
+
+	response := createCredentialResponse(credentials)
+	cacheCredentials(response, roleArn)
+	fmt.Println(toJSON(response))
+	myWindow.Close()
+}
 
 func setupGUIWindow(myApp fyne.App, roleArn, mfaSerialNumber string) fyne.Window {
 	myWindow := myApp.NewWindow("AWS MFA Input")
-	mfaInput := createMFAInputEntry()
-	submitButton := createSubmitButton(myWindow, roleArn, mfaSerialNumber, mfaInput)
+
+	mfaInput := createMFAInputEntry(func(token string) {
+		handleMFASubmission(myWindow, roleArn, mfaSerialNumber, token)
+	})
+	submitButton := createSubmitButton(func() {
+		handleMFASubmission(myWindow, roleArn, mfaSerialNumber, mfaInput.Text)
+	})
 
 	content := container.New(layout.NewVBoxLayout(),
 		widget.NewLabel("Enter MFA Token"),
@@ -146,7 +166,7 @@ func setupGUIWindow(myApp fyne.App, roleArn, mfaSerialNumber string) fyne.Window
 	return myWindow
 }
 
-func createMFAInputEntry() *widget.Entry {
+func createMFAInputEntry(onSubmit func(string)) *widget.Entry {
 	mfaInput := widget.NewEntry()
 	mfaInput.SetPlaceHolder("xxxxxx")
 	mfaInput.Validator = func(s string) error {
@@ -155,26 +175,14 @@ func createMFAInputEntry() *widget.Entry {
 		}
 		return nil
 	}
+
+	mfaInput.OnSubmitted = onSubmit
+
 	return mfaInput
 }
 
-func createSubmitButton(myWindow fyne.Window, roleArn, mfaSerialNumber string, mfaInput *widget.Entry) *widget.Button {
-	return widget.NewButton("Submit", func() {
-		token := mfaInput.Text
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-
-		credentials, err := assumeRoleWithToken(ctx, roleArn, mfaSerialNumber, token)
-		if err != nil {
-			dialog.ShowError(err, myWindow) // Show error in a dialog box
-			return
-		}
-
-		response := createCredentialResponse(credentials)
-		cacheCredentials(response, roleArn)
-		fmt.Println(toJSON(response))
-		myWindow.Close()
-	})
+func createSubmitButton(onClick func()) *widget.Button {
+	return widget.NewButton("Submit", onClick)
 }
 
 func assumeRoleWithToken(ctx context.Context, roleArn, mfaSerialNumber, token string) (*sts.AssumeRoleOutput, error) {
