@@ -30,8 +30,19 @@ func handleMFASubmission(myWindow fyne.Window, roleArn, mfaSerialNumber, token s
 
 func handleSubmissionResponse(myWindow fyne.Window, credentials *sts.AssumeRoleOutput) {
 	// Logic to handle the response after successful submission.
-	// This could involve updating the GUI, logging the success, and closing the window.
 	response := createCredentialResponse(credentials)
-	fmt.Println(toJSON(response))
+
+	// Convert the response to JSON
+	jsonResponse, err := toJSON(response)
+	if err != nil {
+		// Log the error and return without closing the window
+		logger.Printf("Error marshaling credentials to JSON: %v\n", err)
+		return
+	}
+
+	// Print the successfully marshaled JSON response
+	fmt.Println(jsonResponse)
+
+	// Close the window
 	myWindow.Close()
 }
