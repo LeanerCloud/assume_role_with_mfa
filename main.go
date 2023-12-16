@@ -43,40 +43,52 @@ var (
 )
 
 func main() {
+	initializeFlags()
+
+	validateArns()
+
+	myApp := startApplication()
+
+	checkCredentialsAndLaunchGUI(myApp)
+}
+
+func initializeFlags() {
 	flag.StringVar(&roleArn, "role-arn", "", "AWS Role ARN")
 	flag.StringVar(&mfaArn, "mfa-arn", "", "MFA device ARN")
 	flag.StringVar(&awsProfile, "profile", "default", "AWS Profile")
+	flag.Parse()
+}
 
+func validateArns() {
 	if !isValidArn(roleArn) || !isValidArn(mfaArn) {
 		fmt.Println("Invalid ARN format")
 		os.Exit(1)
 	}
 
-	flag.Parse()
-
 	if roleArn == "" || mfaArn == "" {
 		fmt.Println("Usage: -role-arn <role_arn> -mfa-arn <mfa_device_arn> [-profile <source_aws_profile>]")
 		os.Exit(1)
 	}
+}
 
-	// Start the Fyne app with a unique ID
+func startApplication() fyne.App {
 	myApp := app.NewWithID("com.leanercloud.aws-mfa-helper")
+	return myApp
+}
 
-	// Get the cache directory
+func checkCredentialsAndLaunchGUI(myApp fyne.App) {
 	cacheDir := myApp.Storage().RootURI().Path()
-
-	// Setup logging to a file
 	if err := setupLogging(cacheDir); err != nil {
 		fmt.Println("Warning: Unable to set up logging:", err)
 	}
 
-	// Check if valid cached credentials exist
 	if creds, valid := checkCachedCredentials(roleArn); valid {
 		fmt.Println(toJSON(creds))
 	} else {
 		launchGUI(myApp, roleArn, mfaArn)
 	}
 }
+
 func setupLogging(cacheDir string) error {
 	logFile, err := os.OpenFile(filepath.Join(cacheDir, "aws_mfa_log.txt"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
