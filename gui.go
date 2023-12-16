@@ -27,12 +27,19 @@ func setupGUIWindow(myApp fyne.App, roleArn, mfaSerialNumber string) fyne.Window
 	})
 
 	content := container.New(layout.NewVBoxLayout(),
+		layout.NewSpacer(), // Spacer before the elements
 		widget.NewLabel("Enter MFA Token"),
 		mfaInput,
+		layout.NewSpacer(), // Spacer before the elements
 		submitButton,
+		layout.NewSpacer(), // Spacer after the elements
 	)
 
 	myWindow.SetContent(content)
+
+	// Set focus to the MFA input edit box
+	myWindow.Canvas().Focus(mfaInput)
+
 	return myWindow
 }
 

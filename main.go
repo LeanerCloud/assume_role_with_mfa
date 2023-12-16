@@ -36,6 +36,7 @@ func startApplication() fyne.App {
 func checkCredentialsAndLaunchGUI(myApp fyne.App) error {
 	// Get the cache directory path
 	cacheDir := myApp.Storage().RootURI().Path()
+	// fmt.Println(cacheDir)
 
 	// Set up logging
 	if err := setupLogging(cacheDir); err != nil {
